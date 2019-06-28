@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    certmanager.k8s.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - micro.recipesavants.com
+    secretName: tls-secret
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: aks-helloworld-1-fair-fox
+          servicePort: 80
+
