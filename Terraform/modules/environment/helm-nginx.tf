@@ -23,8 +23,16 @@ resource "helm_release" "nginx" {
   repository = "${data.helm_repository.stable.metadata.0.name}"
   chart      = "nginx-ingress"
   version    = "0.24.1"
-  #namespace  = "ingress-basic"
+  namespace  = "ingress-basic"
   
+    set {
+    name  = "controller.service.loadBalancerIP"
+    value = "${azurerm_public_ip.ingress_ip.ip_address}"
+  }
+  set {
+    name = "controller.service.annotations.\"service\\.beta\\.kubernetes\\.io/azure-load-balancer-resource-group\""
+    value = "${azurerm_resource_group.k8s.name}"
+  }
   set {
     name  = "rbac.create"
     value = "true"
@@ -33,6 +41,41 @@ resource "helm_release" "nginx" {
     name = "controller.replicaCount"
     value = "3"
   }
+}
+
+# cert-manager
+resource "helm_release" "cert-manager" {
+  name      = "cert-manager"
+  chart     = "stable/cert-manager"
+  namespace = "kube-system"
+  timeout   = 1800
+  depends_on = [ "helm_release.nginx" ]
+
+  set {
+    name  = "ingressShim.defaultIssuerName"
+    value = "letsencrypt"
+  }
+  set {
+    name  = "ingressShim.defaultIssuerKind"
+    value = "ClusterIssuer"
+  }
+  set {
+    name  = "rbac.create"
+    value = "false"
+  }
+  set {
+    name  = "serviceAccount.create"
+    value = "false"
+  }
+}
+
+# letsencrypt
+resource "helm_release" "letsencrypt" {
+  name      = "letsencrypt"
+  chart     = "${local.environment}/charts/letsencrypt/"
+  namespace = "kube-system"
+  timeout   = 1800
+  depends_on = [ "helm_release.cert-manager" ]
 }
 
 # Found at: https://github.com/kubernetes/kubernetes/blob/master/pkg/cloudprovider/providers/azure/azure_loadbalancer.go#L38
