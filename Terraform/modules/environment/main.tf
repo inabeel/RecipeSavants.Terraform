@@ -1,13 +1,13 @@
-terraform {
-  required_version = "=0.11.13"
-}
+# terraform {
+#   required_version = "=0.11.13"
+# }
 
 provider "random" {
   version = "~> 2.1"
 }
 
 provider "azurerm" {
-  version = "=1.24.0"
+  version = "~> 1.27"
 }
 
 locals {
