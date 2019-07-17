@@ -37,12 +37,6 @@ resource "azurerm_kubernetes_cluster" "k8s_ingress" {
   
   role_based_access_control {
     enabled = true
-    # azure_active_directory {
-    #   server_app_id     = "${azuread_application.aks_app.application_id}"
-    #   server_app_secret = "${random_string.aks_sp_password.result}"
-    #   client_app_id     = "${azuread_application.aks_app.client_app_id}"
-    #   tenant_id         = "${azuread_application.aks_app.tenant_id}"
-    # }
   }
 
   network_profile {
@@ -53,21 +47,6 @@ resource "azurerm_kubernetes_cluster" "k8s_ingress" {
   }
 
   tags = {
-    environment = "${local.environment}"
-  }
-}
-
-resource "azurerm_public_ip" "ingress_ip" {
-  name                = "domain-${local.environment}iip"
-  location            = "${azurerm_resource_group.k8s.location}"
-  resource_group_name = "${azurerm_resource_group.k8s.name}"
-
-  allocation_method = "Static"
-  domain_name_label = "domain-${local.environment}"
-
-  tags = {
-    project = "${local.environment}-project"
-    instance = "${local.environment}-instance"
     environment = "${local.environment}"
   }
 }
