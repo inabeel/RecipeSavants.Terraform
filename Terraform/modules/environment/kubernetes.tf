@@ -23,7 +23,7 @@ resource "azurerm_kubernetes_cluster" "k8s_ingress" {
   agent_pool_profile {
     name            = "default"
     count           = "3"
-    vm_size         = "Standard_B2s"
+    vm_size         = "Standard_B2ms"
     os_type         = "Linux"
     #allowed range: 30-1024
     os_disk_size_gb = 30
